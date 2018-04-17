@@ -121,6 +121,12 @@ describe('filter', function(){
 			}
 			return result;
 		}
+
+		function negate(criteria){
+			return function(){
+				return !criteria.apply(null, arguments);
+			}
+		}
 		describe('all stationary products', function(){
 			var stationaryProductCriteria = function(product){
 				return product.category === 'stationary';
@@ -129,19 +135,46 @@ describe('filter', function(){
 			console.table(stationaryProducts);
 		});
 
-		describe('all understocked products [units < 50]', function(){
+		describe('Products by stock', function(){
 			var understockedProductCriteria = function(product){
 				return product.units < 50;
 			};
-			var understockedProducts = filter(products, understockedProductCriteria);
-			console.table(understockedProducts);
+			describe('all understocked products [units < 50]', function(){
+				var understockedProducts = filter(products, understockedProductCriteria);
+				console.table(understockedProducts);
+			});
+			describe('all wellstocked products [units >= 50]', function(){
+				/*var wellStockedProductCritera = function(product){
+					return product.units >= 50;
+				};*/
+				/*var wellStockedProductCritera = function(product){
+					return !understockedProductCriteria(product);
+				};*/
+				var wellStockedProductCritera = negate(understockedProductCriteria);
+				var wellStockedProducts = filter(products, wellStockedProductCritera);
+				console.table(wellStockedProducts);
+			})
 		});
-		describe('all costly products [cost > 50]', function(){
+
+		describe('Products by cost', function(){
 			var costlyProductCriteria = function(product){
-				return product.cost > 50;
+				return product.cost > 60;
 			};
-			var costlyProducts = filter(products, costlyProductCriteria);
-			console.table(costlyProducts);
+			describe('all costly products [cost > 50]', function(){
+				var costlyProducts = filter(products, costlyProductCriteria);
+				console.table(costlyProducts);
+			});
+			describe('all affordable products [cost <= 50]', function(){
+				/*var affordableProductCriteria = function(product){
+					return product.cost <= 50;
+				};*/
+				/*var affordableProductCriteria = function(product){
+					return !costlyProductCriteria(product);
+				};*/
+				var affordableProductCriteria = negate(costlyProductCriteria);
+				var affordableProducts = filter(products, affordableProductCriteria);
+				console.table(affordableProducts);
+			});
 		});
 	})
 });
